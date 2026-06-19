@@ -14,6 +14,7 @@ use App\Models\Tenant\TenantUser;
 use App\Services\Tenant\CustomerAuthService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Throwable;
 
 /**
  * Handles storefront customer authentication via Sanctum.
@@ -27,14 +28,15 @@ class CustomerAuthController extends ApiController
     /**
      * Register a new customer.
      *
-     * @param  CustomerRegisterRequest  $request
+     * @param CustomerRegisterRequest $request
      * @return JsonResponse
+     * @throws Throwable
      */
     public function register(CustomerRegisterRequest $request): JsonResponse
     {
         $result = $this->customerAuthService->register($request->validated());
 
-        return $this->successResponse(
+        return $this->success(
             new CustomerAuthResource($result),
             'Registration successful.',
             201,
@@ -51,7 +53,7 @@ class CustomerAuthController extends ApiController
     {
         $result = $this->customerAuthService->login($request->validated());
 
-        return $this->successResponse(
+        return $this->success(
             new CustomerAuthResource($result),
             'Login successful.',
         );
@@ -70,7 +72,7 @@ class CustomerAuthController extends ApiController
 
         $this->customerAuthService->logout($user);
 
-        return $this->successResponse(null, 'Logged out successfully.');
+        return $this->success(null, 'Logged out successfully.');
     }
 
     /**
@@ -84,7 +86,7 @@ class CustomerAuthController extends ApiController
         /** @var TenantUser $user */
         $user = $request->user()->load('roles');
 
-        return $this->successResponse([
+        return $this->success([
             'user' => new TenantUserResource($user),
             'customer' => new CustomerResource($user->customer),
         ]);
