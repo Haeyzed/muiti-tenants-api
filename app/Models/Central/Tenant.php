@@ -74,14 +74,6 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     }
 
     /**
-     * @return HasMany<TenantSetting, $this>
-     */
-    public function settings(): HasMany
-    {
-        return $this->hasMany(TenantSetting::class);
-    }
-
-    /**
      * @return HasOne<Domain, $this>
      */
     public function primaryDomain(): HasOne

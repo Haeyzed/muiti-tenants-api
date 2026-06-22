@@ -9,15 +9,12 @@ use App\Http\Controllers\ApiController;
 use App\Http\Requests\Central\StoreDomainRequest;
 use App\Http\Requests\Central\StoreTenantRequest;
 use App\Http\Requests\Central\UpdateTenantRequest;
-use App\Http\Requests\Central\UpdateTenantSettingsRequest;
 use App\Http\Resources\Central\DomainResource;
 use App\Http\Resources\Central\TenantResource;
-use App\Http\Resources\Central\TenantSettingResource;
 use App\Models\Central\Domain;
 use App\Models\Central\Tenant;
 use App\Services\Central\DomainService;
 use App\Services\Central\TenantService;
-use App\Services\Central\TenantSettingsService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\Enum;
@@ -31,7 +28,6 @@ class TenantController extends ApiController
     public function __construct(
         private readonly TenantService $tenantService,
         private readonly DomainService $domainService,
-        private readonly TenantSettingsService $settingsService,
     ) {}
 
     /**
@@ -217,25 +213,6 @@ class TenantController extends ApiController
         return $this->updated(
             new DomainResource($domain),
             'Domain verified successfully.',
-        );
-    }
-
-    /**
-     * Update settings for a tenant.
-     *
-     * @param  UpdateTenantSettingsRequest  $request
-     * @param  Tenant  $tenant
-     * @return JsonResponse
-     */
-    public function updateSettings(UpdateTenantSettingsRequest $request, Tenant $tenant): JsonResponse
-    {
-        $this->authorize('update', $tenant);
-
-        $this->settingsService->setMany($tenant, $request->validated('settings'));
-
-        return $this->updated(
-            TenantSettingResource::collection($this->settingsService->all($tenant)),
-            'Tenant settings updated successfully.',
         );
     }
 }

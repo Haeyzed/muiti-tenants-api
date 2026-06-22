@@ -30,7 +30,6 @@ class TenantResource extends JsonResource
             'suspended_at' => $this->suspended_at?->toIso8601String(),
             'domains' => DomainResource::collection($this->whenLoaded('domains')),
             'primary_domain' => new DomainResource($this->whenLoaded('primaryDomain')),
-            'settings' => TenantSettingResource::collection($this->whenLoaded('settings')),
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),
         ];

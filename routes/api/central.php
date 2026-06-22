@@ -6,8 +6,8 @@ use App\Http\Controllers\Central\AuthController;
 use App\Http\Controllers\Central\BillingController;
 use App\Http\Controllers\Central\BillingWebhookController;
 use App\Http\Controllers\Central\PlanController;
+use App\Http\Controllers\Central\SettingsController;
 use App\Http\Controllers\Central\TenantController;
-use App\Models\Central\Tenant;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1/central')->group(function (): void {
@@ -24,7 +24,6 @@ Route::prefix('v1/central')->group(function (): void {
         Route::post('tenants/{tenant}/suspend', [TenantController::class, 'suspend']);
         Route::post('tenants/{tenant}/domains', [TenantController::class, 'storeDomain']);
         Route::post('tenants/{tenant}/domains/{domain}/verify', [TenantController::class, 'verifyDomain']);
-        Route::put('tenants/{tenant}/settings', [TenantController::class, 'updateSettings']);
         Route::apiResource('tenants', TenantController::class);
 
         Route::apiResource('plans', PlanController::class);
@@ -35,5 +34,13 @@ Route::prefix('v1/central')->group(function (): void {
         Route::post('tenants/{tenant}/subscription/cancel', [BillingController::class, 'cancel']);
         Route::post('tenants/{tenant}/subscription/swap', [BillingController::class, 'swap']);
         Route::post('tenants/{tenant}/billing-portal', [BillingController::class, 'portal']);
+
+        Route::get('settings', [SettingsController::class, 'index']);
+        Route::put('settings/business', [SettingsController::class, 'updateBusiness']);
+        Route::put('settings/store', [SettingsController::class, 'updateStore']);
+        Route::post('settings/branding', [SettingsController::class, 'updateBranding']);
+        Route::put('settings/email', [SettingsController::class, 'updateEmail']);
+        Route::put('settings/notifications', [SettingsController::class, 'updateNotifications']);
+        Route::put('settings/invoice', [SettingsController::class, 'updateInvoice']);
     });
 });

@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Models\Tenant;
+namespace App\Models\Central;
 
-use App\Concerns\Tenant\HasSingletonRecord;
-use App\Enums\Tenant\NotificationEvent;
+use App\Concerns\Central\HasSingletonRecord;
+use App\Enums\Central\NotificationEvent;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Notification channel preferences for a tenant store.
+ * Notification channel preferences for the central application.
  */
 class NotificationSetting extends Model
 {
@@ -61,7 +61,7 @@ class NotificationSetting extends Model
 
         $allowed = is_array($eventChannels)
             ? $eventChannels
-            : ['mail', ' database'];
+            : ['mail', 'database'];
 
         $resolved = [];
 

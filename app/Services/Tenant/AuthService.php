@@ -7,6 +7,7 @@ namespace App\Services\Tenant;
 use App\Models\Tenant\TenantUser;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use RuntimeException;
 
 /**
  * Handles tenant store authentication.
@@ -26,7 +27,7 @@ class AuthService
      * @return array{user: TenantUser, token: string}
      *
      * @throws ValidationException
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function login(array $credentials, ?string $ipAddress = null, ?string $userAgent = null): array
     {
@@ -40,15 +41,15 @@ class AuthService
         }
 
         if (! $user->is_active) {
-            throw new \RuntimeException('Your account has been deactivated.', 403);
+            throw new RuntimeException('Your account has been deactivated.', 403);
         }
 
         if ($user->isSuspended()) {
-            throw new \RuntimeException('Your account has been suspended.', 403);
+            throw new RuntimeException('Your account has been suspended.', 403);
         }
 
         if ($user->roles->count() === 1 && $user->hasRole('customer')) {
-            throw new \RuntimeException('Please use the customer login endpoint.', 403);
+            throw new RuntimeException('Please use the customer login endpoint.', 403);
         }
 
         $this->teamService->recordLogin(

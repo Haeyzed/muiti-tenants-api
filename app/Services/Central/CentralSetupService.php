@@ -2,24 +2,22 @@
 
 declare(strict_types=1);
 
-namespace App\Services\Tenant;
+namespace App\Services\Central;
 
-use App\Events\Tenant\SettingsUpdated;
-use App\Models\Tenant\BrandingSetting;
-use App\Models\Tenant\BusinessSetting;
-use App\Models\Tenant\EmailSetting;
-use App\Models\Tenant\InvoiceSetting;
-use App\Models\Tenant\NotificationSetting;
-use App\Models\Tenant\StoreSetting;
+use App\Models\Central\BrandingSetting;
+use App\Models\Central\BusinessSetting;
+use App\Models\Central\EmailSetting;
+use App\Models\Central\InvoiceSetting;
+use App\Models\Central\NotificationSetting;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 
 /**
- * Aggregates and manages all tenant store settings.
+ * Aggregates and manages all central store settings.
  */
-class StoreSetupService
+class CentralSetupService
 {
     /**
      * Get all store settings.
@@ -28,12 +26,11 @@ class StoreSetupService
      */
     public function getAll(): array
     {
-        return Cache::rememberForever('settings', function () {
+        return Cache::rememberForever('central_settings', function () {
             $branding = BrandingSetting::singleton()->load('media');
 
             return [
                 'business' => BusinessSetting::singleton(),
-                'store' => StoreSetting::singleton(),
                 'branding' => $branding,
                 'email' => EmailSetting::singleton(),
                 'notifications' => NotificationSetting::singleton(),
@@ -54,27 +51,7 @@ class StoreSetupService
         return DB::transaction(function () use ($data): BusinessSetting {
             $settings = BusinessSetting::singleton();
             $settings->update($data);
-            SettingsUpdated::dispatch('business', $settings->toArray());
-            Cache::forget('settings');
-
-            return $settings->fresh();
-        });
-    }
-
-    /**
-     * Update store settings.
-     *
-     * @param array<string, mixed> $data
-     * @return StoreSetting
-     * @throws Throwable
-     */
-    public function updateStore(array $data): StoreSetting
-    {
-        return DB::transaction(function () use ($data): StoreSetting {
-            $settings = StoreSetting::singleton();
-            $settings->update($data);
-            SettingsUpdated::dispatch('store', $settings->toArray());
-            Cache::forget('settings');
+            Cache::forget('central_settings');
 
             return $settings->fresh();
         });
@@ -102,8 +79,7 @@ class StoreSetupService
             }
 
             $settings = $settings->fresh(['media']);
-            SettingsUpdated::dispatch('branding', $settings->toArray());
-            Cache::forget('settings');
+            Cache::forget('central_settings');
 
             return $settings;
         });
@@ -121,8 +97,7 @@ class StoreSetupService
         return DB::transaction(function () use ($data): EmailSetting {
             $settings = EmailSetting::singleton();
             $settings->update($data);
-            SettingsUpdated::dispatch('email', $settings->toArray());
-            Cache::forget('settings');
+            Cache::forget('central_settings');
 
             return $settings->fresh();
         });
@@ -140,8 +115,7 @@ class StoreSetupService
         return DB::transaction(function () use ($data): NotificationSetting {
             $settings = NotificationSetting::singleton();
             $settings->update($data);
-            SettingsUpdated::dispatch('notifications', $settings->toArray());
-            Cache::forget('settings');
+            Cache::forget('central_settings');
 
             return $settings->fresh();
         });
@@ -159,8 +133,7 @@ class StoreSetupService
         return DB::transaction(function () use ($data): InvoiceSetting {
             $settings = InvoiceSetting::singleton();
             $settings->update($data);
-            SettingsUpdated::dispatch('invoice', $settings->toArray());
-            Cache::forget('settings');
+            Cache::forget('central_settings');
 
             return $settings->fresh();
         });

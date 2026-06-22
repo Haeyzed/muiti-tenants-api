@@ -68,6 +68,8 @@ Route::prefix('v1/tenant')->group(function (): void {
         Route::get('geolocate', [WorldController::class, 'geolocate']);
     });
 
+    Route::get('settings/business', [SettingsController::class, 'showBusiness']);
+
     Route::middleware('auth:sanctum')->group(function (): void {
         Route::post('auth/logout', [AuthController::class, 'logout']);
         Route::get('auth/me', [AuthController::class, 'me']);
@@ -77,6 +79,12 @@ Route::prefix('v1/tenant')->group(function (): void {
         Route::post('onboarding/complete', [OnboardingController::class, 'finish']);
 
         Route::get('settings', [SettingsController::class, 'index']);
+        Route::get('settings/store', [SettingsController::class, 'showStore']);
+        Route::get('settings/branding', [SettingsController::class, 'showBranding']);
+        Route::get('settings/email', [SettingsController::class, 'showEmail']);
+        Route::get('settings/notifications', [SettingsController::class, 'showNotifications']);
+        Route::get('settings/invoice', [SettingsController::class, 'showInvoice']);
+
         Route::put('settings/business', [SettingsController::class, 'updateBusiness']);
         Route::put('settings/store', [SettingsController::class, 'updateStore']);
         Route::put('settings/branding', [SettingsController::class, 'updateBranding']);
