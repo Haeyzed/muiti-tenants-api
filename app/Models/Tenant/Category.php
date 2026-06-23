@@ -13,8 +13,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -30,20 +28,25 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $parent_id
  * @property bool $is_visible
  * @property int $sort_order
+ * @property int|null $image_media_id
+ * @property string|null $banner_media_id
+ * @property string|null $color
+ * @property string|null $icon
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property-read Category|null $parent
  * @property-read Collection<int, Category> $children
  * @property-read Collection<int, Product> $products
- * @property-read Collection<int, \Spatie\MediaLibrary\MediaCollections\Models\Media> $media
+ * @property-read Media|null $imageMedia
+ * @property-read Media|null $bannerMedia
  * @method static Builder<Category>|Category query()
  * @method static Builder<Category>|Category filter(array $filters)
  */
-class Category extends Model implements HasMedia
+class Category extends Model
 {
     /** @use HasFactory<CategoryFactory> */
-    use HasFactory, HasSlug, InteractsWithMedia, SoftDeletes;
+    use HasFactory, HasSlug, SoftDeletes;
 
     /**
      * @var list<string>
@@ -57,6 +60,10 @@ class Category extends Model implements HasMedia
         'parent_id',
         'is_visible',
         'sort_order',
+        'image_media_id',
+        'banner_media_id',
+        'color',
+        'icon',
     ];
 
     /**
@@ -123,13 +130,23 @@ class Category extends Model implements HasMedia
     }
 
     /**
-     * Register the media collections for the category.
+     * Image media file for this category.
      *
-     * @return void
+     * @return BelongsTo<Media, $this>
      */
-    public function registerMediaCollections(): void
+    public function imageMedia(): BelongsTo
     {
-        $this->addMediaCollection('image')->singleFile();
+        return $this->belongsTo(Media::class, 'image_media_id');
+    }
+
+    /**
+     * Banner media file for this category.
+     *
+     * @return BelongsTo<Media, $this>
+     */
+    public function bannerMedia(): BelongsTo
+    {
+        return $this->belongsTo(Media::class, 'banner_media_id');
     }
 
     /**
@@ -163,6 +180,46 @@ class Category extends Model implements HasMedia
                 if (!empty($booleans)) {
                     $q->whereIn('is_visible', $booleans);
                 }
+            })
+            ->when(!empty($filters['parent_id']), function (Builder $q) use ($filters): void {
+                $q->where('parent_id', $filters['parent_id']);
+            })
+            ->when(isset($filters['has_products']), function (Builder $q): void {
+                $q->has('products');
             });
+    }
+
+    /**
+     * Get all ancestor categories.
+     *
+     * @return Collection<int, Category>
+     */
+    public function ancestors(): Collection
+    {
+        $ancestors = new Collection();
+        $current = $this->parent;
+
+        while ($current !== null) {
+            $ancestors->push($current);
+            $current = $current->parent;
+        }
+
+        return $ancestors->reverse();
+    }
+
+    /**
+     * Get full breadcrumb path as array.
+     *
+     * @return list<array{id: int, name: string, slug: string}>
+     */
+    public function breadcrumbPath(): array
+    {
+        $path = [];
+        foreach ($this->ancestors() as $ancestor) {
+            $path[] = ['id' => $ancestor->id, 'name' => $ancestor->name, 'slug' => $ancestor->slug];
+        }
+        $path[] = ['id' => $this->id, 'name' => $this->name, 'slug' => $this->slug];
+
+        return $path;
     }
 }

@@ -9,11 +9,10 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -25,18 +24,23 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $slug
  * @property string|null $description
  * @property bool $is_visible
+ * @property int|null $logo_media_id
+ * @property string|null $meta_title
+ * @property string|null $meta_description
+ * @property string|null $website_url
+ * @property int|null $sort_order
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property-read Collection<int, Product> $products
- * @property-read Collection<int, \Spatie\MediaLibrary\MediaCollections\Models\Media> $media
+ * @property-read Media|null $logoMedia
  * @method static Builder<Brand>|Brand query()
  * @method static Builder<Brand>|Brand filter(array $filters)
  */
-class Brand extends Model implements HasMedia
+class Brand extends Model
 {
     /** @use HasFactory<BrandFactory> */
-    use HasFactory, HasSlug, InteractsWithMedia, SoftDeletes;
+    use HasFactory, HasSlug, SoftDeletes;
 
     /**
      * @var list<string>
@@ -46,6 +50,11 @@ class Brand extends Model implements HasMedia
         'slug',
         'description',
         'is_visible',
+        'logo_media_id',
+        'meta_title',
+        'meta_description',
+        'website_url',
+        'sort_order',
     ];
 
     /**
@@ -65,6 +74,7 @@ class Brand extends Model implements HasMedia
     {
         return [
             'is_visible' => 'boolean',
+            'sort_order' => 'integer',
         ];
     }
 
@@ -91,13 +101,13 @@ class Brand extends Model implements HasMedia
     }
 
     /**
-     * Register the media collections for the brand.
+     * Logo media file for this brand.
      *
-     * @return void
+     * @return BelongsTo<Media, $this>
      */
-    public function registerMediaCollections(): void
+    public function logoMedia(): BelongsTo
     {
-        $this->addMediaCollection('logo')->singleFile();
+        return $this->belongsTo(Media::class, 'logo_media_id');
     }
 
     /**

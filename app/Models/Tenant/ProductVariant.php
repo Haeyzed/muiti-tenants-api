@@ -7,11 +7,32 @@ namespace App\Models\Tenant;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Variant option for a product (size, color, etc.).
+ *
+ * @property int $id
+ * @property int $product_id
+ * @property string $name
+ * @property string $sku
+ * @property float $price
+ * @property float|null $compare_at_price
+ * @property float|null $cost_price
+ * @property array<string, mixed>|null $options
+ * @property bool $is_default
+ * @property int|null $image_media_id
+ * @property string|null $barcode
+ * @property float|null $weight
+ * @property \Carbon\Carbon|null $created_at
+ * @property \Carbon\Carbon|null $updated_at
+ * @property \Carbon\Carbon|null $deleted_at
+ * @property-read Product $product
+ * @property-read Inventory|null $inventory
+ * @property-read Media|null $imageMedia
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, ProductPricingTier> $pricingTiers
  */
 class ProductVariant extends Model
 {
@@ -26,8 +47,12 @@ class ProductVariant extends Model
         'sku',
         'price',
         'compare_at_price',
+        'cost_price',
         'options',
         'is_default',
+        'image_media_id',
+        'barcode',
+        'weight',
     ];
 
     /**
@@ -38,8 +63,10 @@ class ProductVariant extends Model
         return [
             'price' => 'decimal:2',
             'compare_at_price' => 'decimal:2',
+            'cost_price' => 'decimal:2',
             'options' => 'array',
             'is_default' => 'boolean',
+            'weight' => 'decimal:3',
         ];
     }
 
@@ -60,7 +87,27 @@ class ProductVariant extends Model
      */
     public function inventory(): HasOne
     {
-        return $this->hasOne(Inventory::class);
+        return $this->hasOne(Inventory::class, 'product_variant_id');
+    }
+
+    /**
+     * Get the variant image media.
+     *
+     * @return BelongsTo<Media, $this>
+     */
+    public function imageMedia(): BelongsTo
+    {
+        return $this->belongsTo(Media::class, 'image_media_id');
+    }
+
+    /**
+     * Get pricing tiers for this variant.
+     *
+     * @return HasMany<ProductPricingTier, $this>
+     */
+    public function pricingTiers(): HasMany
+    {
+        return $this->hasMany(ProductPricingTier::class, 'variant_id');
     }
 
     /**
@@ -74,7 +121,32 @@ class ProductVariant extends Model
     {
         return $query->where(function (Builder $q) use ($search) {
             $q->where('name', 'like', "%{$search}%")
-              ->orWhere('sku', 'like', "%{$search}%");
+              ->orWhere('sku', 'like', "%{$search}%")
+              ->orWhere('barcode', 'like', "%{$search}%");
         });
+    }
+
+    /**
+     * Calculate discount percentage.
+     *
+     * @return float|null
+     */
+    public function discountPercentage(): ?float
+    {
+        if ($this->compare_at_price === null || $this->compare_at_price <= 0) {
+            return null;
+        }
+
+        return round((($this->compare_at_price - $this->price) / $this->compare_at_price) * 100, 2);
+    }
+
+    /**
+     * Check if variant is on sale.
+     *
+     * @return bool
+     */
+    public function isOnSale(): bool
+    {
+        return $this->compare_at_price !== null && $this->compare_at_price > $this->price;
     }
 }

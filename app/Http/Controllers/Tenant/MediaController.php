@@ -17,6 +17,7 @@ use App\Models\Tenant\Media;
 use App\Services\Tenant\MediaService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use RuntimeException;
 
 /**
@@ -83,7 +84,7 @@ class MediaController extends ApiController
      */
     public function bulkUpload(BulkUploadMediaRequest $request): JsonResponse
     {
-        /** @var list<\Illuminate\Http\UploadedFile> $files */
+        /** @var list<UploadedFile> $files */
         $files = $request->file('files', []);
         $items = $this->service->uploadMany($files, $request->safe()->except(['files']));
 

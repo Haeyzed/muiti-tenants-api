@@ -25,12 +25,15 @@ class StoreCategoryRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'meta_title' => ['nullable', 'string', 'max:255'],
-            'meta_description' => ['nullable', 'string'],
             'parent_id' => ['nullable', 'integer', Rule::exists('categories', 'id')],
             'is_visible' => ['sometimes', 'boolean'],
-            'sort_order' => ['sometimes', 'integer', 'min:0'],
-            'image' => ['nullable', 'image', 'max:5120'],
+            'sort_order' => ['nullable', 'integer', 'min:0'],
+            'image_media_id' => ['nullable', 'integer', Rule::exists('media', 'id')],
+            'banner_media_id' => ['nullable', 'integer', Rule::exists('media', 'id')],
+            'color' => ['nullable', 'string', 'max:50'],
+            'icon' => ['nullable', 'string', 'max:100'],
+            'meta_title' => ['nullable', 'string', 'max:255'],
+            'meta_description' => ['nullable', 'string'],
         ];
     }
 }
