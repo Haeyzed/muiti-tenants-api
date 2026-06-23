@@ -38,15 +38,23 @@ Route::prefix('v1/tenant')->group(function (): void {
         ]);
     });
 
+    // Staff/Admin Auth
     Route::post('auth/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
+    Route::post('auth/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:10,1');
+    Route::post('auth/reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:10,1');
 
+    // Customer Auth
     Route::prefix('customer')->group(function (): void {
         Route::post('auth/register', [CustomerAuthController::class, 'register'])->middleware('throttle:10,1');
         Route::post('auth/login', [CustomerAuthController::class, 'login'])->middleware('throttle:10,1');
+        Route::post('auth/forgot-password', [CustomerAuthController::class, 'forgotPassword'])->middleware('throttle:10,1');
+        Route::post('auth/reset-password', [CustomerAuthController::class, 'resetPassword'])->middleware('throttle:10,1');
 
         Route::middleware('auth:sanctum')->group(function (): void {
             Route::post('auth/logout', [CustomerAuthController::class, 'logout']);
             Route::get('auth/me', [CustomerAuthController::class, 'me']);
+            Route::put('auth/profile', [CustomerAuthController::class, 'updateProfile']);
+            Route::put('auth/password', [CustomerAuthController::class, 'changePassword']);
         });
     });
 
@@ -73,6 +81,8 @@ Route::prefix('v1/tenant')->group(function (): void {
     Route::middleware('auth:sanctum')->group(function (): void {
         Route::post('auth/logout', [AuthController::class, 'logout']);
         Route::get('auth/me', [AuthController::class, 'me']);
+        Route::put('auth/profile', [AuthController::class, 'updateProfile']);
+        Route::put('auth/password', [AuthController::class, 'changePassword']);
 
         Route::get('onboarding', [OnboardingController::class, 'show']);
         Route::post('onboarding/steps/{step}/complete', [OnboardingController::class, 'completeStep']);

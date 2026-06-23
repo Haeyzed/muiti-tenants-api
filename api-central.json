@@ -97,8 +97,169 @@
                                             "type": "boolean"
                                         },
                                         "message": {
+                                            "type": "string"
+                                        },
+                                        "errors": {
+                                            "type": "null"
+                                        }
+                                    },
+                                    "required": [
+                                        "success",
+                                        "message",
+                                        "errors"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                },
+                "security": []
+            }
+        },
+        "/auth/forgot-password": {
+            "post": {
+                "operationId": "auth.forgotPassword",
+                "summary": "Send a password reset OTP",
+                "tags": [
+                    "Auth"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    }
+                                },
+                                "required": [
+                                    "email"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
                                             "type": "string",
-                                            "const": "Your account has been deactivated."
+                                            "const": "Password reset OTP sent."
+                                        },
+                                        "data": {
+                                            "type": "null"
+                                        }
+                                    },
+                                    "required": [
+                                        "success",
+                                        "message",
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                },
+                "security": []
+            }
+        },
+        "/auth/reset-password": {
+            "post": {
+                "operationId": "auth.resetPassword",
+                "summary": "Reset the user's password",
+                "tags": [
+                    "Auth"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "otp": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "minLength": 8
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "minLength": 8
+                                    }
+                                },
+                                "required": [
+                                    "email",
+                                    "otp",
+                                    "password",
+                                    "password_confirmation"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "const": "Password reset successfully."
+                                        },
+                                        "data": {
+                                            "type": "null"
+                                        }
+                                    },
+                                    "required": [
+                                        "success",
+                                        "message",
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
                                         },
                                         "errors": {
                                             "type": "null"
@@ -180,8 +341,7 @@
                                             "type": "boolean"
                                         },
                                         "message": {
-                                            "type": "string",
-                                            "const": "User retrieved successfully"
+                                            "type": "null"
                                         },
                                         "data": {
                                             "$ref": "#/components/schemas/CentralUserResource"
@@ -195,6 +355,142 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/auth/profile": {
+            "put": {
+                "operationId": "auth.updateProfile",
+                "summary": "Update the authenticated user's profile",
+                "tags": [
+                    "Auth"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "maxLength": 255
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "maxLength": 255
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "const": "Profile updated successfully."
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/CentralUserResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "success",
+                                        "message",
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/auth/password": {
+            "put": {
+                "operationId": "auth.changePassword",
+                "summary": "Change the authenticated user's password",
+                "tags": [
+                    "Auth"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "current_password": {
+                                        "type": "string"
+                                    },
+                                    "new_password": {
+                                        "type": "string",
+                                        "minLength": 8
+                                    },
+                                    "new_password_confirmation": {
+                                        "type": "string",
+                                        "minLength": 8
+                                    }
+                                },
+                                "required": [
+                                    "current_password",
+                                    "new_password",
+                                    "new_password_confirmation"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "const": "Password changed successfully."
+                                        },
+                                        "data": {
+                                            "type": "null"
+                                        }
+                                    },
+                                    "required": [
+                                        "success",
+                                        "message",
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
@@ -1203,6 +1499,353 @@
                 }
             }
         },
+        "/settings": {
+            "get": {
+                "operationId": "settings.index",
+                "summary": "Get all store settings",
+                "tags": [
+                    "Settings"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "null"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "business": {
+                                                    "$ref": "#/components/schemas/BusinessSettingResource"
+                                                },
+                                                "branding": {
+                                                    "$ref": "#/components/schemas/BrandingSettingResource"
+                                                },
+                                                "email": {
+                                                    "$ref": "#/components/schemas/EmailSettingResource"
+                                                },
+                                                "notifications": {
+                                                    "$ref": "#/components/schemas/NotificationSettingResource"
+                                                },
+                                                "invoice": {
+                                                    "$ref": "#/components/schemas/InvoiceSettingResource"
+                                                }
+                                            },
+                                            "required": [
+                                                "business",
+                                                "branding",
+                                                "email",
+                                                "notifications",
+                                                "invoice"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "success",
+                                        "message",
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/settings/business": {
+            "put": {
+                "operationId": "settings.updateBusiness",
+                "summary": "Update business settings",
+                "tags": [
+                    "Settings"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateBusinessSettingsRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "const": "Business settings updated."
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/BusinessSettingResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "success",
+                                        "message",
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/settings/branding": {
+            "post": {
+                "operationId": "settings.updateBranding",
+                "summary": "Update branding settings",
+                "tags": [
+                    "Settings"
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateBrandingSettingsRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "const": "Branding settings updated."
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/BrandingSettingResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "success",
+                                        "message",
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/settings/email": {
+            "put": {
+                "operationId": "settings.updateEmail",
+                "summary": "Update email settings",
+                "tags": [
+                    "Settings"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateEmailSettingsRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "const": "Email settings updated."
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/EmailSettingResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "success",
+                                        "message",
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/settings/notifications": {
+            "put": {
+                "operationId": "settings.updateNotifications",
+                "summary": "Update notification settings",
+                "tags": [
+                    "Settings"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateNotificationSettingsRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "const": "Notification settings updated."
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/NotificationSettingResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "success",
+                                        "message",
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/settings/invoice": {
+            "put": {
+                "operationId": "settings.updateInvoice",
+                "summary": "Update invoice settings",
+                "tags": [
+                    "Settings"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateInvoiceSettingsRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "const": "Invoice settings updated."
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/InvoiceSettingResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "success",
+                                        "message",
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
         "/tenants/statistics": {
             "get": {
                 "operationId": "tenant.statistics",
@@ -1524,80 +2167,6 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
-                    }
-                }
-            }
-        },
-        "/tenants/{tenant}/settings": {
-            "put": {
-                "operationId": "tenant.updateSettings",
-                "summary": "Update settings for a tenant",
-                "tags": [
-                    "Tenant"
-                ],
-                "parameters": [
-                    {
-                        "name": "tenant",
-                        "in": "path",
-                        "required": true,
-                        "description": "The tenant ID",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/UpdateTenantSettingsRequest"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "success": {
-                                            "type": "boolean"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "const": "Tenant settings updated successfully."
-                                        },
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/TenantSettingResource"
-                                            }
-                                        }
-                                    },
-                                    "required": [
-                                        "success",
-                                        "message",
-                                        "data"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/AuthorizationException"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationException"
                     }
                 }
             }
@@ -1954,6 +2523,99 @@
             }
         },
         "schemas": {
+            "BrandingSettingResource": {
+                "type": "object",
+                "properties": {
+                    "theme": {
+                        "type": "string"
+                    },
+                    "store_logo": {
+                        "$ref": "#/components/schemas/MediaResource"
+                    },
+                    "store_banner": {
+                        "$ref": "#/components/schemas/MediaResource"
+                    },
+                    "favicon": {
+                        "$ref": "#/components/schemas/MediaResource"
+                    },
+                    "updated_at": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "theme",
+                    "updated_at"
+                ],
+                "title": "BrandingSettingResource"
+            },
+            "BusinessSettingResource": {
+                "type": "object",
+                "properties": {
+                    "business_name": {
+                        "type": "string"
+                    },
+                    "registration_number": {
+                        "type": "string"
+                    },
+                    "business_type": {
+                        "type": "string"
+                    },
+                    "business_email": {
+                        "type": "string"
+                    },
+                    "business_phone": {
+                        "type": "string"
+                    },
+                    "website": {
+                        "type": "string"
+                    },
+                    "support_email": {
+                        "type": "string"
+                    },
+                    "support_phone": {
+                        "type": "string"
+                    },
+                    "country_code": {
+                        "type": "string"
+                    },
+                    "state_code": {
+                        "type": "string"
+                    },
+                    "city_id": {
+                        "type": "string"
+                    },
+                    "postal_code": {
+                        "type": "string"
+                    },
+                    "address_line_1": {
+                        "type": "string"
+                    },
+                    "address_line_2": {
+                        "type": "string"
+                    },
+                    "updated_at": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "business_name",
+                    "registration_number",
+                    "business_type",
+                    "business_email",
+                    "business_phone",
+                    "website",
+                    "support_email",
+                    "support_phone",
+                    "country_code",
+                    "state_code",
+                    "city_id",
+                    "postal_code",
+                    "address_line_1",
+                    "address_line_2",
+                    "updated_at"
+                ],
+                "title": "BusinessSettingResource"
+            },
             "CentralUserResource": {
                 "type": "object",
                 "properties": {
@@ -2032,6 +2694,149 @@
                     "created_at"
                 ],
                 "title": "DomainResource"
+            },
+            "EmailSettingResource": {
+                "type": "object",
+                "properties": {
+                    "sender_name": {
+                        "type": "string"
+                    },
+                    "sender_email": {
+                        "type": "string"
+                    },
+                    "smtp_host": {
+                        "type": "string"
+                    },
+                    "smtp_port": {
+                        "type": "string"
+                    },
+                    "smtp_username": {
+                        "type": "string"
+                    },
+                    "smtp_encryption": {
+                        "type": "string"
+                    },
+                    "templates": {
+                        "type": "string"
+                    },
+                    "updated_at": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "sender_name",
+                    "sender_email",
+                    "smtp_host",
+                    "smtp_port",
+                    "smtp_username",
+                    "smtp_encryption",
+                    "templates",
+                    "updated_at"
+                ],
+                "title": "EmailSettingResource"
+            },
+            "InvoiceSettingResource": {
+                "type": "object",
+                "properties": {
+                    "prefix": {
+                        "type": "string"
+                    },
+                    "number_format": {
+                        "type": "string"
+                    },
+                    "footer": {
+                        "type": "string"
+                    },
+                    "notes": {
+                        "type": "string"
+                    },
+                    "next_sequence": {
+                        "type": "string"
+                    },
+                    "updated_at": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "prefix",
+                    "number_format",
+                    "footer",
+                    "notes",
+                    "next_sequence",
+                    "updated_at"
+                ],
+                "title": "InvoiceSettingResource"
+            },
+            "MediaResource": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "file_name": {
+                        "type": "string"
+                    },
+                    "mime_type": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "size": {
+                        "type": "integer"
+                    },
+                    "url": {
+                        "type": "string"
+                    },
+                    "collection": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "file_name",
+                    "mime_type",
+                    "size",
+                    "url",
+                    "collection"
+                ],
+                "title": "MediaResource"
+            },
+            "NotificationSettingResource": {
+                "type": "object",
+                "properties": {
+                    "email_enabled": {
+                        "type": "string"
+                    },
+                    "sms_enabled": {
+                        "type": "string"
+                    },
+                    "push_enabled": {
+                        "type": "string"
+                    },
+                    "admin_alerts_enabled": {
+                        "type": "string"
+                    },
+                    "channels": {
+                        "type": "string"
+                    },
+                    "updated_at": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "email_enabled",
+                    "sms_enabled",
+                    "push_enabled",
+                    "admin_alerts_enabled",
+                    "channels",
+                    "updated_at"
+                ],
+                "title": "NotificationSettingResource"
             },
             "PlanResource": {
                 "type": "object",
@@ -2417,12 +3222,6 @@
                     "primary_domain": {
                         "$ref": "#/components/schemas/DomainResource"
                     },
-                    "settings": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/TenantSettingResource"
-                        }
-                    },
                     "created_at": {
                         "type": "string"
                     },
@@ -2445,26 +3244,6 @@
                 ],
                 "title": "TenantResource"
             },
-            "TenantSettingResource": {
-                "type": "object",
-                "properties": {
-                    "key": {
-                        "type": "string"
-                    },
-                    "value": {
-                        "type": [
-                            "array",
-                            "null"
-                        ],
-                        "items": {}
-                    }
-                },
-                "required": [
-                    "key",
-                    "value"
-                ],
-                "title": "TenantSettingResource"
-            },
             "TenantStatus": {
                 "type": "string",
                 "enum": [
@@ -2473,6 +3252,290 @@
                     "suspended"
                 ],
                 "title": "TenantStatus"
+            },
+            "UpdateBrandingSettingsRequest": {
+                "type": "object",
+                "description": "Validates branding settings updates.",
+                "properties": {
+                    "theme": {
+                        "type": [
+                            "array",
+                            "null"
+                        ],
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "store_logo": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "binary",
+                        "contentMediaType": "application/octet-stream",
+                        "maxLength": 5120
+                    },
+                    "store_banner": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "binary",
+                        "contentMediaType": "application/octet-stream",
+                        "maxLength": 10240
+                    },
+                    "favicon": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "binary",
+                        "contentMediaType": "application/octet-stream",
+                        "maxLength": 1024
+                    }
+                },
+                "title": "UpdateBrandingSettingsRequest"
+            },
+            "UpdateBusinessSettingsRequest": {
+                "type": "object",
+                "description": "Validates business settings updates.",
+                "properties": {
+                    "business_name": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
+                    },
+                    "registration_number": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 100
+                    },
+                    "business_type": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 100
+                    },
+                    "business_email": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "email",
+                        "maxLength": 255
+                    },
+                    "business_phone": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 30
+                    },
+                    "website": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "uri",
+                        "maxLength": 255
+                    },
+                    "support_email": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "email",
+                        "maxLength": 255
+                    },
+                    "support_phone": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 30
+                    },
+                    "country_code": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "minLength": 2,
+                        "maxLength": 2
+                    },
+                    "state_code": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 10
+                    },
+                    "city_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "postal_code": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 20
+                    },
+                    "address_line_1": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "address_line_2": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                },
+                "title": "UpdateBusinessSettingsRequest"
+            },
+            "UpdateEmailSettingsRequest": {
+                "type": "object",
+                "description": "Validates email settings updates.",
+                "properties": {
+                    "sender_name": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
+                    },
+                    "sender_email": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "email",
+                        "maxLength": 255
+                    },
+                    "smtp_host": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
+                    },
+                    "smtp_port": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "minimum": 1,
+                        "maximum": 65535
+                    },
+                    "smtp_username": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
+                    },
+                    "smtp_password": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "smtp_encryption": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "enum": [
+                            "tls",
+                            "ssl",
+                            "null"
+                        ]
+                    },
+                    "templates": {
+                        "type": [
+                            "array",
+                            "null"
+                        ],
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "title": "UpdateEmailSettingsRequest"
+            },
+            "UpdateInvoiceSettingsRequest": {
+                "type": "object",
+                "description": "Validates invoice settings updates.",
+                "properties": {
+                    "prefix": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 20
+                    },
+                    "number_format": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 50
+                    },
+                    "footer": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "notes": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "next_sequence": {
+                        "type": "integer",
+                        "minimum": 1
+                    }
+                },
+                "title": "UpdateInvoiceSettingsRequest"
+            },
+            "UpdateNotificationSettingsRequest": {
+                "type": "object",
+                "description": "Validates notification settings updates.",
+                "properties": {
+                    "email_enabled": {
+                        "type": "boolean"
+                    },
+                    "sms_enabled": {
+                        "type": "boolean"
+                    },
+                    "push_enabled": {
+                        "type": "boolean"
+                    },
+                    "admin_alerts_enabled": {
+                        "type": "boolean"
+                    },
+                    "channels": {
+                        "type": [
+                            "array",
+                            "null"
+                        ],
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "title": "UpdateNotificationSettingsRequest"
             },
             "UpdatePlanRequest": {
                 "type": "object",
@@ -2615,26 +3678,6 @@
                     }
                 },
                 "title": "UpdateTenantRequest"
-            },
-            "UpdateTenantSettingsRequest": {
-                "type": "object",
-                "description": "Validates tenant settings update requests.",
-                "properties": {
-                    "settings": {
-                        "type": "array",
-                        "items": {
-                            "type": [
-                                "string",
-                                "null"
-                            ]
-                        },
-                        "minItems": 1
-                    }
-                },
-                "required": [
-                    "settings"
-                ],
-                "title": "UpdateTenantSettingsRequest"
             }
         },
         "responses": {
