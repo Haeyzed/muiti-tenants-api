@@ -25,11 +25,15 @@ class CentralRolePermissionSeeder extends Seeder
             'tenants.activate',
             'tenants.suspend',
             'users.view',
-            'users.manage',
+            'users.create',
+            'users.update',
+            'users.delete',
             'billing.view',
             'billing.manage',
             'plans.view',
-            'plans.manage',
+            'plans.create',
+            'plans.update',
+            'plans.delete',
         ];
 
         $permissionModels = collect($permissions)
@@ -41,10 +45,10 @@ class CentralRolePermissionSeeder extends Seeder
             'super-admin' => $permissions,
             'platform-admin' => [
                 'tenants.view', 'tenants.create', 'tenants.update', 'tenants.activate', 'tenants.suspend',
-                'users.view', 'users.manage',
+                'users.view', 'users.create', 'users.update', 'users.delete',
             ],
-            'support-agent' => ['tenants.view', 'users.view'],
-            'billing-manager' => ['tenants.view', 'billing.view', 'billing.manage', 'plans.view', 'plans.manage'],
+            'support-agent' => ['tenants.view', 'users.create', 'users.update', 'users.delete',],
+            'billing-manager' => ['tenants.view', 'billing.view', 'billing.manage', 'plans.view', 'plans.create', 'plans.update', 'plans.delete']
         ];
 
         foreach ($rolePermissions as $roleName => $rolePerms) {
