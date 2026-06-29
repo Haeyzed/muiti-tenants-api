@@ -115,4 +115,16 @@ class PlanController extends ApiController
 
         return $this->deleted('Plan deleted successfully.');
     }
+
+    /**
+     * Get plan options.
+     *
+     * @return JsonResponse
+     */
+    public function options(): JsonResponse
+    {
+        $this->authorize('viewAny', Plan::class);
+
+        return $this->success($this->planService->getOptions(), 'Plan options retrieved successfully.');
+    }
 }

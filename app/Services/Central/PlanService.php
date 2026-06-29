@@ -115,4 +115,21 @@ class PlanService
 
         $plan->delete();
     }
+
+    /**
+     * Get plan options.
+     *
+     * @return Collection
+     */
+    public function getOptions(): Collection
+    {
+        return Plan::query()
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get(['name', 'slug'])
+            ->map(fn (Plan $plan) => [
+                'label' => $plan->name,
+                'value' => $plan->slug,
+            ]);
+    }
 }

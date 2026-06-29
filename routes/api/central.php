@@ -30,6 +30,7 @@ Route::prefix('v1/central')->group(function (): void {
         Route::post('tenants/{tenant}/domains/{domain}/verify', [TenantController::class, 'verifyDomain']);
         Route::apiResource('tenants', TenantController::class);
 
+        Route::get('plans/options', [PlanController::class, 'options']);
         Route::apiResource('plans', PlanController::class);
 
         Route::get('billing/plans', [BillingController::class, 'plans']);
