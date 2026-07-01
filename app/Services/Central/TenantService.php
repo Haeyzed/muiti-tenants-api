@@ -46,8 +46,8 @@ class TenantService
             });
         }
 
-        if (!empty($filters['status'])) {
-            $query->where('status', $filters['status']);
+        if (! empty($filters['status'])) {
+            $query->whereIn('status', (array) $filters['status']);
         }
 
         return $query->paginate($perPage);
@@ -162,6 +162,40 @@ class TenantService
     public function delete(Tenant $tenant): void
     {
         $tenant->delete();
+    }
+
+    /**
+     * @param list<string> $ids
+     */
+    public function deleteMany(array $ids): int
+    {
+        return Tenant::query()->whereIn('id', $ids)->delete();
+    }
+
+    /**
+     * @param list<string>|null $ids
+     * @return \Illuminate\Support\Collection<int, Tenant>
+     */
+    public function exportQuery(
+        ?array $ids = null,
+        ?string $startDate = null,
+        ?string $endDate = null,
+    ): \Illuminate\Support\Collection {
+        $query = Tenant::query()->with(['domains'])->orderBy('name');
+
+        if ($ids !== null && $ids !== []) {
+            $query->whereIn('id', $ids);
+        }
+
+        if ($startDate !== null) {
+            $query->whereDate('created_at', '>=', $startDate);
+        }
+
+        if ($endDate !== null) {
+            $query->whereDate('created_at', '<=', $endDate);
+        }
+
+        return $query->get();
     }
 
     /**

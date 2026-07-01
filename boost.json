@@ -13,7 +13,6 @@
         "cashier-stripe-development",
         "laravel-best-practices",
         "pest-testing",
-        "echo-development",
         "tailwindcss-development",
         "deploying-laravel-cloud"
     ]

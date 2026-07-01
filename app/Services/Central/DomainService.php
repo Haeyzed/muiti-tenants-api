@@ -88,6 +88,24 @@ class DomainService
     }
 
     /**
+     * @param array<string, mixed> $data
+     */
+    public function update(Domain $domain, array $data): Domain
+    {
+        return DB::transaction(function () use ($domain, $data): Domain {
+            if (($data['is_primary'] ?? false) && ! $domain->is_primary) {
+                $domain->tenant->domains()->update(['is_primary' => false]);
+            }
+
+            $domain->update([
+                'is_primary' => $data['is_primary'] ?? $domain->is_primary,
+            ]);
+
+            return $domain->fresh();
+        });
+    }
+
+    /**
      * Create a domain record.
      *
      * @param Tenant $tenant

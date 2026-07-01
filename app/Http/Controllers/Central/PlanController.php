@@ -4,14 +4,20 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Central;
 
+use App\Exports\Central\PlansExport;
 use App\Http\Controllers\ApiController;
 use App\Http\Requests\Central\StorePlanRequest;
 use App\Http\Requests\Central\UpdatePlanRequest;
 use App\Http\Resources\Central\PlanResource;
+use App\Imports\Central\PlansImport;
+use App\Models\Central\CentralUser;
 use App\Models\Central\Plan;
+use App\Services\Central\ExcelExportService;
 use App\Services\Central\PlanService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use Maatwebsite\Excel\Facades\Excel;
 use RuntimeException;
 
 /**
@@ -21,6 +27,7 @@ class PlanController extends ApiController
 {
     public function __construct(
         private readonly PlanService $planService,
+        private readonly ExcelExportService $excelExportService,
     ) {}
 
     /**
@@ -126,5 +133,95 @@ class PlanController extends ApiController
         $this->authorize('viewAny', Plan::class);
 
         return $this->success($this->planService->getOptions(), 'Plan options retrieved successfully.');
+    }
+
+    /**
+     * Get plan statistics.
+     */
+    public function statistics(): JsonResponse
+    {
+        $this->authorize('viewAny', Plan::class);
+
+        return $this->success($this->planService->statistics(), 'Plan statistics retrieved successfully.');
+    }
+
+    /**
+     * Delete multiple plans.
+     */
+    public function destroyMany(Request $request): JsonResponse
+    {
+        $this->authorize('deleteAny', Plan::class);
+
+        $validated = $request->validate([
+            'ids' => ['required', 'array'],
+            'ids.*' => ['integer', 'exists:plans,id'],
+        ]);
+
+        $count = $this->planService->deleteMany($validated['ids']);
+
+        return $this->success(null, "{$count} plans deleted successfully.");
+    }
+
+    /**
+     * Export plans to Excel.
+     */
+    public function export(Request $request)
+    {
+        $this->authorize('viewAny', Plan::class);
+
+        $validated = $request->validate([
+            'ids' => ['nullable', 'array'],
+            'ids.*' => ['integer', 'exists:plans,id'],
+            'delivery' => ['sometimes', 'in:download,email'],
+            'start_date' => ['nullable', 'date'],
+            'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
+            'recipient_id' => ['nullable', 'integer', 'exists:users,id'],
+        ]);
+
+        $plans = $this->planService->exportQuery(
+            $validated['ids'] ?? null,
+            $validated['start_date'] ?? null,
+            $validated['end_date'] ?? null,
+        );
+
+        $export = new PlansExport($plans);
+        $filename = 'plans-export.xlsx';
+
+        if (($validated['delivery'] ?? 'download') === 'email') {
+            $content = $this->excelExportService->raw($export);
+            $recipient = isset($validated['recipient_id'])
+                ? CentralUser::query()->findOrFail($validated['recipient_id'])
+                : $request->user();
+
+            Mail::raw('Your plans export is attached.', function ($message) use ($recipient, $content, $filename): void {
+                $message->to($recipient->email)
+                    ->subject('Plans Export')
+                    ->attachData(
+                        $content,
+                        $filename,
+                        ['mime' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']
+                    );
+            });
+
+            return $this->success(null, 'Export sent successfully.');
+        }
+
+        return $this->excelExportService->download($export, $filename);
+    }
+
+    /**
+     * Import plans from Excel.
+     */
+    public function import(Request $request): JsonResponse
+    {
+        $this->authorize('create', Plan::class);
+
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:xlsx,xls,csv'],
+        ]);
+
+        Excel::import(new PlansImport, $request->file('file'));
+
+        return $this->success(null, 'Plans imported successfully.');
     }
 }

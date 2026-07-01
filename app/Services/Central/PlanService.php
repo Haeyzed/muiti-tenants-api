@@ -25,8 +25,16 @@ class PlanService
     {
         $query = Plan::query()->orderBy('sort_order');
 
-        if (isset($filters['is_active'])) {
-            $query->where('is_active', filter_var($filters['is_active'], FILTER_VALIDATE_BOOLEAN));
+        if (! empty($filters['is_active'])) {
+            $statuses = (array) $filters['is_active'];
+            $activeSelected = in_array('active', $statuses, true);
+            $inactiveSelected = in_array('inactive', $statuses, true);
+
+            if ($activeSelected && ! $inactiveSelected) {
+                $query->where('is_active', true);
+            } elseif ($inactiveSelected && ! $activeSelected) {
+                $query->where('is_active', false);
+            }
         }
 
         if (!empty($filters['search'])) {
@@ -114,6 +122,60 @@ class PlanService
         }
 
         $plan->delete();
+    }
+
+    /**
+     * @param list<int> $ids
+     */
+    public function deleteMany(array $ids): int
+    {
+        $defaultPlan = (string) config('billing.default_plan');
+
+        return Plan::query()
+            ->whereIn('id', $ids)
+            ->where('slug', '!=', $defaultPlan)
+            ->delete();
+    }
+
+    /**
+     * @param list<int>|null $ids
+     * @return Collection<int, Plan>
+     */
+    public function exportQuery(
+        ?array $ids = null,
+        ?string $startDate = null,
+        ?string $endDate = null,
+    ): Collection {
+        $query = Plan::query()->orderBy('sort_order');
+
+        if ($ids !== null && $ids !== []) {
+            $query->whereIn('id', $ids);
+        }
+
+        if ($startDate !== null) {
+            $query->whereDate('created_at', '>=', $startDate);
+        }
+
+        if ($endDate !== null) {
+            $query->whereDate('created_at', '<=', $endDate);
+        }
+
+        return $query->get();
+    }
+
+    /**
+     * Get plan statistics.
+     *
+     * @return array{total: int, active: int, inactive: int, featured: int}
+     */
+    public function statistics(): array
+    {
+        return [
+            'total' => Plan::query()->count(),
+            'active' => Plan::query()->where('is_active', true)->count(),
+            'inactive' => Plan::query()->where('is_active', false)->count(),
+            'featured' => Plan::query()->where('is_featured', true)->count(),
+        ];
     }
 
     /**

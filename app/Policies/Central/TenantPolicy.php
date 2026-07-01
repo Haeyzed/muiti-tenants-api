@@ -37,6 +37,11 @@ class TenantPolicy
         return $user->can('tenants.delete');
     }
 
+    public function deleteAny(CentralUser $user): bool
+    {
+        return $user->can('tenants.delete');
+    }
+
     public function activate(CentralUser $user, Tenant $tenant): bool
     {
         return $user->can('tenants.activate');

@@ -8,6 +8,7 @@ use App\Http\Controllers\Central\BillingWebhookController;
 use App\Http\Controllers\Central\PlanController;
 use App\Http\Controllers\Central\SettingsController;
 use App\Http\Controllers\Central\TenantController;
+use App\Http\Controllers\Central\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1/central')->group(function (): void {
@@ -24,14 +25,29 @@ Route::prefix('v1/central')->group(function (): void {
         Route::put('auth/password', [AuthController::class, 'changePassword']);
 
         Route::get('tenants/statistics', [TenantController::class, 'statistics']);
+        Route::delete('tenants/bulk', [TenantController::class, 'destroyMany']);
+        Route::post('tenants/export', [TenantController::class, 'export']);
+        Route::post('tenants/import', [TenantController::class, 'import']);
         Route::post('tenants/{tenant}/activate', [TenantController::class, 'activate']);
         Route::post('tenants/{tenant}/suspend', [TenantController::class, 'suspend']);
         Route::post('tenants/{tenant}/domains', [TenantController::class, 'storeDomain']);
+        Route::put('tenants/{tenant}/domains/{domain}', [TenantController::class, 'updateDomain']);
         Route::post('tenants/{tenant}/domains/{domain}/verify', [TenantController::class, 'verifyDomain']);
         Route::apiResource('tenants', TenantController::class);
 
+        Route::get('plans/statistics', [PlanController::class, 'statistics']);
         Route::get('plans/options', [PlanController::class, 'options']);
+        Route::delete('plans/bulk', [PlanController::class, 'destroyMany']);
+        Route::post('plans/export', [PlanController::class, 'export']);
+        Route::post('plans/import', [PlanController::class, 'import']);
         Route::apiResource('plans', PlanController::class);
+
+        Route::get('users/statistics', [UserController::class, 'statistics']);
+        Route::get('users/options', [UserController::class, 'options']);
+        Route::delete('users/bulk', [UserController::class, 'destroyMany']);
+        Route::post('users/export', [UserController::class, 'export']);
+        Route::post('users/import', [UserController::class, 'import']);
+        Route::apiResource('users', UserController::class);
 
         Route::get('billing/plans', [BillingController::class, 'plans']);
         Route::get('tenants/{tenant}/subscription', [BillingController::class, 'subscription']);

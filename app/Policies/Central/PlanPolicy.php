@@ -34,6 +34,11 @@ class PlanPolicy
 
     public function delete(CentralUser $user, Plan $plan): bool
     {
-        return $user->can('plans.manage');
+        return $user->can('plans.manage') || $user->can('plans.delete');
+    }
+
+    public function deleteAny(CentralUser $user): bool
+    {
+        return $user->can('plans.manage') || $user->can('plans.delete');
     }
 }

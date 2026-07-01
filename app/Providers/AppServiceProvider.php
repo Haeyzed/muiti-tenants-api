@@ -14,6 +14,7 @@ use App\Events\Tenant\TeamInvitationSent;
 use App\Events\Tenant\WaitlistJoined;
 use App\Listeners\Tenant\HandleTenantDomainEvents;
 use App\Listeners\Tenant\HandleTenantStaffNotifications;
+use App\Models\Central\CentralUser;
 use App\Models\Central\Plan;
 use App\Models\Central\StripeSubscription;
 use App\Models\Central\StripeSubscriptionItem;
@@ -38,6 +39,7 @@ use App\Models\Tenant\TeamInvitation;
 use App\Models\Tenant\TenantUser;
 use App\Models\Tenant\Waitlist;
 use App\Models\Tenant\WaitlistSubscriber;
+use App\Policies\Central\CentralUserPolicy;
 use App\Policies\Central\PlanPolicy;
 use App\Policies\Central\TenantPolicy;
 use App\Policies\Tenant\BrandPolicy;
@@ -100,6 +102,7 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::policy(Tenant::class, TenantPolicy::class);
         Gate::policy(Plan::class, PlanPolicy::class);
+        Gate::policy(CentralUser::class, CentralUserPolicy::class);
         Gate::policy(OnboardingProgress::class, OnboardingPolicy::class);
         Gate::policy(BusinessSetting::class, SettingsPolicy::class);
         Gate::policy(TenantUser::class, TeamPolicy::class);
